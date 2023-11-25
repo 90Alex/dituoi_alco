@@ -1,0 +1,73 @@
+import random
+import time
+
+# Αρχικοποίουμε  το seed
+random.seed(2442)  
+# Ερώτημα 1
+# Δημιουργουμε 20.000 τυχαίους αριθμους πιστωτικών καρτών
+credit_cards = [str(random.randint(1000, 9999)) + '-' + str(random.randint(1000, 9999)) + '-' + 
+                str(random.randint(1000, 9999)) + '-' + str(random.randint(1000, 9999)) for _ in range(20000)]
+
+# Δημιουργία 1.000.000 επαναλήψεων για τις χρεωσεις
+expenses = []
+for _ in range(1000000):
+    credit_card = random.choice(credit_cards)
+    amount = round(random.uniform(10, 1000), 2)  # Τυχαίο ποσό με 2 δεκαδικά ψηφία
+    expenses.append((credit_card, amount))
+
+# Ερώτημα 2
+start_time = time.time()
+
+total_amounts = {}
+transaction_counts = {}
+
+for expense in expenses:
+    credit_card, amount = expense
+    if credit_card in total_amounts:
+        total_amounts[credit_card] += amount
+        transaction_counts[credit_card] += 1
+    else:
+        total_amounts[credit_card] = amount
+        transaction_counts[credit_card] = 1
+
+min_total_card = min(total_amounts, key=total_amounts.get)
+max_total_card = max(total_amounts, key=total_amounts.get)
+min_transaction_card = min(transaction_counts, key=transaction_counts.get)
+max_transaction_card = max(transaction_counts, key=transaction_counts.get)
+
+end_time = time.time()
+print("Χρόνος εκτέλεσης Ερωτήματος 2:", end_time - start_time, "δευτερόλεπτα")
+
+# Ερώτημα 3
+def hash_function(key, size):
+    return hash(key) % size
+
+class HashTable:
+    def __init__(self, size):
+        self.size = size
+        self.table = [None] * size
+
+    def insert(self, key, value):
+        index = hash_function(key, self.size)
+        while self.table[index] is not None:
+            index = (index + 1) % self.size
+        self.table[index] = (key, value)
+
+# Ερώτημα 4
+start_time = time.time()
+
+hash_table_size = 101
+hash_table = HashTable(hash_table_size)
+
+collisions = 0
+for expense in expenses:
+    credit_card, amount = expense
+    index = hash_function(credit_card, hash_table_size)
+    while hash_table.table[index] is not None:
+        index = (index + 1) % hash_table_size
+        collisions += 1
+    hash_table.insert(credit_card, amount)
+
+end_time = time.time()
+print("Αριθμός συγκρούσεων στον πίνακα κατακερματισμού:", collisions)
+print("Χρόνος εκτέλεσης Ερωτήματος 4:", end_time - start_time, "δευτερόλεπτα")
